@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+    <meta charset="utf-8">
+    <title>Street View side-by-side</title>
+    <style>
+      html, body {
+        height: 100%;
+        width :100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map{
+        float: left;
+        height: 50%;
+        width: 100%;
+      }
+
+
+#pano
+{
+        float: left;
+        height: 50%;
+        width: 100%;
+      }
+
+    </style>
+  </head>
+  <body>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
+	<div id="myModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Add Data</h4>
+      </div>
+      <div class="modal-body">
+       <form method="POST" action="submit.php">
+<input type="hidden" name="position" id="position">
+<input type="hidden" name="head" id="head">
+<input type="hidden" name="pitch" id="pitch">
+<input type="hidden" name="id" id="id">
+  <div class="form-group">
+    <label for="email">Title:</label>
+    <input type="text" class="form-control" id="email" name="title">
+  </div>
+  <div class="form-group">
+    <label for="pwd">Information:</label>
+    <input type="text" class="form-control" id="pwd" name="info">
+  </div>
+  <button type="submit" class="btn btn-default">Submit</button>
+</form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+    <div id="map"></div>
+    <div id="pano"></div>
+    <script>
+
+	var id=0;
+	var head=0;
+	var pitch=0;
+	var pos=0;
+      function initialize() {
+        var fenway = {lat: 42.345573, lng: -71.098326};
+        var map = new google.maps.Map(document.getElementById('map'), {
+          center: fenway,
+          zoom: 14
+        });
+
+
+		 var contentString = '<div id="content">'+
+            '<div id="siteNotice">'+
+            '</div>'+
+            '<h1 id="firstHeading" class="firstHeading">Uluru</h1>'+
+            '<div id="bodyContent">'+
+            '<p><b>Uluru</b>, also referred to as <b>Ayers Rock</b>, is a large ' +
+            'sandstone rock formation in the southern part of the '+
+            'Northern Territory, central Australia. It lies 335&#160;km (208&#160;mi) '+
+            'south west of the nearest large town, Alice Springs; 450&#160;km '+
+            '(280&#160;mi) by road. Kata Tjuta and Uluru are the two major '+
+            'features of the Uluru - Kata Tjuta National Park. Uluru is '+
+            'sacred to the Pitjantjatjara and Yankunytjatjara, the '+
+            'Aboriginal people of the area. It has many springs, waterholes, '+
+            'rock caves and ancient paintings. Uluru is listed as a World '+
+            'Heritage Site.</p>'+
+            '<p>Attribution: Uluru, <a href="https://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">'+
+            'https://en.wikipedia.org/w/index.php?title=Uluru</a> '+
+            '(last visited June 22, 2009).</p>'+
+            '</div>'+
+            '</div>';
+
+        var infowindow = new google.maps.InfoWindow({
+          content: contentString
+        });
+
+        var marker = new google.maps.Marker({
+          position: fenway,
+          map: map,
+          title: 'Uluru (Ayers Rock)'
+        });
+        marker.addListener('click', function() {
+          infowindow.open(map, marker);
+        });
+
+
+
+
+
+        var panorama = new google.maps.StreetViewPanorama(
+            document.getElementById('pano'), {
+              position: fenway,
+              pov: {
+                heading: 265,
+                pitch: 0
+              }
+            });
+
+
+
+
+        map.setStreetView(panorama);
+
+		var marker = new google.maps.Marker({
+          position: fenway,
+          map: panorama,
+          title: 'Uluru (Ayers Rock)'
+        });
+        marker.addListener('click', function() {
+          infowindow.open(panorama, marker);
+        });
+
+
+
+
+		panorama.addListener('pano_changed', function() {
+          id = panorama.getPano();
+			//alert(panorama.getPano());
+        });
+
+		  panorama.addListener('position_changed', function() {
+            //var positionCell = document.getElementById('position-cell');
+            //positionCell.firstChild.nodeValue = panorama.getPosition() + '';
+			//alert(panorama.getPosition());
+			pos = panorama.getPosition();
+        });
+
+
+        panorama.addListener('pov_changed', function() {
+
+		pitch = panorama.getPov().pitch
+		head = panorama.getPov().heading
+            //var headingCell = document.getElementById('heading-cell');
+            //var pitchCell = document.getElementById('pitch-cell');
+            //headingCell.firstChild.nodeValue = panorama.getPov().heading + '';
+            //pitchCell.firstChild.nodeValue = panorama.getPov().pitch + '';
+
+			//alert(panorama.getPov().heading+" "+panorama.getPov().pitch);
+        });
+
+
+
+
+      }
+
+	  var google_street_view_images_div = document.getElementById("pano"); //grab the element
+  google_street_view_images_div.onclick = function() {
+   $('#myModal').modal('show');
+
+$('#id').val(id);
+$('#head').val(head);
+$('#pitch').val(pitch);
+$('#position').val(pos);
+
+   }
+    </script>
+
+
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBAFy4V9HtAoOjSlXxaJYzq1adn-uUVp3E&callback=initialize">
+    </script>
+  </body>
+</html>
